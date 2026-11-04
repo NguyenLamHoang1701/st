@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bé khám phá STEAM - Thử thách nguyên vật liệu</title>
+<style>
+:root{--ink:#24415b;--blue:#4da8da;--green:#55b98a;--yellow:#ffd166;--pink:#f58aa8;--cream:#fff9ec}
+*{box-sizing:border-box}body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;color:var(--ink);background:linear-gradient(135deg,#dff5ff,#fff2d9);min-height:100vh}
+header{text-align:center;padding:18px 12px 8px}h1{margin:4px;font-size:clamp(22px,4vw,34px);color:#23618b}.sub{font-size:15px;color:#49657b}
+.wrap{max-width:950px;margin:auto;padding:12px}.panel{background:#ffffffeb;border:3px solid #fff;border-radius:24px;padding:20px;box-shadow:0 8px 24px #45718a22}
+.top{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}.progress{height:14px;background:#e7eef2;border-radius:20px;overflow:hidden;flex:1;min-width:140px}.bar{height:100%;width:0;background:linear-gradient(90deg,#55b98a,#ffd166);transition:.3s}
+.pill{background:#eaf7ff;border-radius:30px;padding:8px 14px;font-weight:bold;font-size:15px}
+.scene{margin:16px 0;background:linear-gradient(#c9efff 0 65%,#a9df9b 65%);border-radius:20px;min-height:170px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.river{position:absolute;bottom:0;height:35%;width:100%;background:repeating-linear-gradient(0deg,#75c8ed,#75c8ed 13px,#8cdbf4 14px,#8cdbf4 26px)}
+.bridge{font-size:68px;z-index:2;filter:drop-shadow(0 5px 2px #527b8b55)}
+h2{margin:8px 0;color:#23618b;text-align:center}
+.instruction{font-size:20px;line-height:1.5;text-align:center;margin:10px auto;max-width:780px;cursor:pointer;padding:12px;border-radius:14px;background:#f0fdf4;border:2px dashed #34d399;transition:all 0.2s;}
+.instruction:hover{background:#dcfce7;transform:scale(1.01);}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:18px 0}
+.choice{border:3px solid #dcecf4;background:white;border-radius:20px;padding:14px 10px;text-align:center;cursor:pointer;font-size:17px;font-weight:bold;color:var(--ink);min-height:130px;transition:.2s;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.choice .emoji{display:block;font-size:50px;margin-bottom:8px}.choice:hover{transform:translateY(-3px);border-color:var(--blue);background:#f0fdf4}.choice.selected{border-color:var(--green);background:#eafff3}
+button{font:inherit;cursor:pointer;border:0;border-radius:30px;padding:12px 24px;font-weight:bold;background:var(--blue);color:white;box-shadow:0 4px 0 #267eae;transition:.15s}
+button:active{transform:translateY(2px);box-shadow:0 2px 0 #267eae}
+button:disabled{opacity:.45;cursor:not-allowed}button.secondary{background:#f2a64b;box-shadow:0 4px 0 #c77a27}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:18px 0}
+.feedback{min-height:36px;text-align:center;font-weight:bold;font-size:19px;padding:6px;color:#267b55}
+.small{font-size:14px;color:#587287;text-align:center;margin-top:6px}.hidden{display:none!important}
+.finish{text-align:center;padding:24px}.star{font-size:50px}
+
+.voice-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin:10px 0 15px;flex-wrap:wrap;background:#f0f9ff;padding:8px 16px;border-radius:30px;width:fit-content;margin-left:auto;margin-right:auto;border:1px solid #bae6fd}
+.voice-controls label{font-size:14px;font-weight:bold;color:#0369a1;display:flex;align-items:center;gap:6px}
+.voice-controls input[type="range"]{cursor:pointer;accent-color:#0284c7;width:120px}
+
+@media(max-width:600px){.panel{padding:14px}.scene{min-height:140px}.instruction{font-size:17px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="sub">🌈 TRÒ CHƠI KHÁM PHÁ STEAM DÀNH CHO BÉ MẦM NON</div>
+  <h1>🧪 BÉ TÌM HIỂU NGUYÊN VẬT LIỆU</h1>
+  <div class="sub">Bé di chuột vào đồ vật hoặc bấm nút để nghe cô đọc to rõ nhé!</div>
+</header>
+
+<div class="wrap">
+  <main class="panel" id="game">
+    <div class="top">
+      <span class="pill" id="mission">Nhiệm vụ 1 / 5</span>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <span class="pill" id="score">⭐ 0</span>
+    </div>
+    
+    <div class="scene">
+      <span class="bridge" id="sceneEmoji">🛠️</span>
+      <div class="river"></div>
+    </div>
+
+    <!-- KHU VỰC ĐIỀU CHỈNH ÂM LƯỢNG TO RÕ -->
+    <div class="voice-controls">
+      <label for="volumeSlider">🔊 Âm lượng:</label>
+      <input type="range" id="volumeSlider" min="0.5" max="1" step="0.05" value="1" oninput="updateVolume(this.value)">
+      <span id="volumeVal" style="font-size:13px;font-weight:bold;color:#0284c7">100% (To nhất)</span>
+    </div>
+
+    <h2 id="title">Xin chào bé yêu!</h2>
+    <p class="instruction" id="question" onclick="speakQuestion()">Hãy sẵn sàng tham gia thử thách khám phá các nguyên vật liệu cùng cô nhé!</p>
+    
+    <div id="choices" class="cards"></div>
+    
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    
+    <div class="actions">
+      <button class="secondary" id="speak" onclick="speakQuestion()">🔊 Nghe lại câu hỏi</button>
+      <button id="check">Kiểm tra</button>
+      <button id="next" class="hidden">Nhiệm vụ tiếp theo ➜</button>
+    </div>
+    <div class="small">💡 Bé di chuột vào từng hình đồ vật bên dưới để nghe đọc to rõ nhé!</div>
+  </main>
+
+  <section class="panel finish hidden" id="finish">
+    <div class="star">🏆🌟🎉</div>
+    <h1>Bé thật xuất sắc!</h1>
+    <p class="instruction">Bé đã hoàn thành tất cả thử thách về nguyên vật liệu STEAM!</p>
+    <h2 id="finalScore"></h2>
+    <button onclick="restart()">🔁 Chơi lại từ đầu</button>
+  </section>
+</div>
+
+<script>
+const missions=[
+{
+  title:"Nhiệm vụ 1: Dự án Bàn tay robot",
+  q:"Bé hãy chọn nguyên vật liệu nào để làm dự án 'Bàn tay robot có thể cử động được'?",
+  opts:[["📋","Tấm bìa cứng"],["📃","Giấy mỏng"],["🧶","Vải mềm"],["🔩","Thanh sắt"]],
+  correct:0,
+  why:"Tấm bìa cứng cáp là lựa chọn tuyệt vời để làm các khớp nối cử động cho bàn tay robot."
+},
+{
+  title:"Nhiệm vụ 2: Dự án Bè nổi trên sông",
+  q:"Bé hãy chọn nguyên vật liệu để làm dự án 'Bè nổi trên sông'?",
+  opts:[["🥤","Ống hút nhựa"],["📃","Giấy mỏng"],["🧶","Vải"],["🍃","Lá cây khô"]],
+  correct:0,
+  why:"Ống hút nhựa nhẹ và rỗng bên trong giúp kết thành chiếc bè nổi vững chắc trên mặt nước."
+},
+{
+  title:"Nhiệm vụ 3: Khám phá vật nổi",
+  q:"Bé hãy chọn nguyên vật liệu nào có thể nổi trên mặt nước?",
+  opts:[["⬜","Tấm xốp"],["🔩","Đinh sắt"],["🪨","Hòn sỏi"],["🧱","Viên gạch"]],
+  correct:0,
+  why:"Tấm xốp rất nhẹ và chứa nhiều không khí bên trong nên sẽ nổi trên mặt nước."
+},
+{
+  title:"Nhiệm vụ 4: Thấm hút nước",
+  q:"Bé hãy chọn nguyên liệu nào sau đây thấm hút nước nhanh?",
+  opts:[["🧽","Tấm bọt biển"],["🧵","Vải đay"],["🧱","Viên gạch"],["🪵","Miếng gỗ"]],
+  correct:0,
+  why:"Tấm bọt biển có các lỗ rỗng nhỏ giúp hút nước cực kỳ nhanh chóng."
+},
+{
+  title:"Nhiệm vụ 5: Khung ảnh để bàn",
+  q:"Bé hãy chọn nguyên vật liệu nào sau đây làm dự án 'Khung ảnh để bàn'?",
+  opts:[["📦","Bìa cát tông"],["📃","Giấy mỏng"],["🧱","Viên gạch"],["🛠️","Thanh sắt"]],
+  correct:0,
+  why:"Bìa cát tông vừa nhẹ vừa đủ độ cứng để làm khung ảnh để bàn xinh xắn."
+}
+];
+
+let index = 0, score = 0, selected = null, done = false;
+let currentVolume = 1.0;
+const $ = id => document.getElementById(id);
+
+function updateVolume(val) {
+  currentVolume = parseFloat(val);
+  const percent = Math.round(currentVolume * 100);
+  $("volumeVal").textContent = percent === 100 ? "100% (To nhất)" : percent + "%";
+  if (currentAudio) {
+    currentAudio.volume = currentVolume;
+  }
+}
+
+// --- BỘ PHÁT ÂM TIẾNG VIỆT TỐI ƯU ÂM LƯỢNG TO RÕ ---
+let currentAudio = null;
+let hoverTimer = null;
+let lastHoveredItem = "";
+
+function stopAllVoice() {
+  clearTimeout(hoverTimer);
+  if (currentAudio) {
+    try {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      currentAudio.src = "";
+    } catch(e) {}
+    currentAudio = null;
+  }
+}
+
+function speakText(rawText) {
+  if (!rawText) return;
+  stopAllVoice();
+
+  const text = rawText.replace(/[*_#~]/g, '').trim();
+  const url = "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=vi&q=" + encodeURIComponent(text);
+  
+  const audio = new Audio(url);
+  audio.volume = currentVolume;
+  currentAudio = audio;
+  
+  audio.play().catch(err => {
+    // Không làm gì, tránh phát sinh giọng nói thứ 2
+  });
+}
+
+function handleHoverChoice(choiceText) {
+  if (done) return;
+  if (lastHoveredItem === choiceText && currentAudio && !currentAudio.paused) return;
+  
+  clearTimeout(hoverTimer);
+  hoverTimer = setTimeout(() => {
+    lastHoveredItem = choiceText;
+    speakText(choiceText);
+  }, 180);
+}
+
+function cancelHover() {
+  clearTimeout(hoverTimer);
+}
+
+function speakQuestion() {
+  cancelHover();
+  const text = $("title").textContent + ". " + $("question").textContent;
+  speakText(text);
+}
+
+function render(){
+  const m = missions[index];
+  selected = null;
+  done = false;
+  lastHoveredItem = "";
+  stopAllVoice();
+
+  $("mission").textContent = `Nhiệm vụ ${index+1} / ${missions.length}`;
+  $("bar").style.width = (index/missions.length*100) + "%";
+  $("score").textContent = "⭐ " + score;
+  $("title").textContent = m.title;
+  $("question").textContent = m.q;
+  $("feedback").textContent = "";
+  
+  $("choices").innerHTML = m.opts.map((o,i)=>
+    `<button class="choice" data-i="${i}" type="button">
+      <span class="emoji">${o[0]}</span>${o[1]}
+    </button>`
+  ).join("");
+  
+  document.querySelectorAll(".choice").forEach((b, i) => {
+    const itemText = m.opts[i][1];
+
+    b.addEventListener("mouseenter", () => handleHoverChoice(itemText));
+    b.addEventListener("mouseleave", cancelHover);
+
+    b.addEventListener("click", () => {
+      cancelHover();
+      if (done) return;
+      selected = +b.dataset.i;
+      document.querySelectorAll(".choice").forEach(x => x.classList.remove("selected"));
+      b.classList.add("selected");
+      
+      $("feedback").textContent = "Bé chọn: " + itemText;
+      speakText("Bé chọn " + itemText);
+    });
+  });
+  
+  $("check").classList.remove("hidden");
+  $("check").disabled = false;
+  $("next").classList.add("hidden");
+  
+  const icons = ["🤖","🛶","⬜","🧽","🖼️"];
+  $("sceneEmoji").textContent = icons[index] || "🛠️";
+}
+
+function check(){
+  cancelHover();
+  if(selected === null){
+    $("feedback").textContent = "Bé hãy nhấn chọn một đáp án nhé!";
+    speakText("Bé hãy chọn một đáp án nhé!");
+    return;
+  }
+  const m = missions[index];
+  done = true;
+  
+  const choiceButtons = document.querySelectorAll(".choice");
+  choiceButtons.forEach((btn, idx) => {
+    if(idx === m.correct){
+      btn.style.borderColor = "#55b98a";
+      btn.style.background = "#eafff3";
+    }
+    if(idx === selected && selected !== m.correct){
+      btn.style.borderColor = "#f58aa8";
+      btn.style.background = "#ffeef2";
+    }
+  });
+
+  if(selected === m.correct){
+    score += 10;
+    const msg = "🎉 Bé chọn rất chuẩn! " + m.why;
+    $("feedback").textContent = msg;
+    $("feedback").style.color = "#267b55";
+    speakText("Bé chọn rất chuẩn! " + m.why);
+  } else {
+    const correctText = m.opts[m.correct][1];
+    const msg = `Chưa đúng rồi! Đáp án đúng là: ${correctText}. ${m.why}`;
+    $("feedback").textContent = msg;
+    $("feedback").style.color = "#c73e1d";
+    speakText("Chưa đúng rồi! Đáp án đúng là " + correctText);
+  }
+  $("score").textContent = "⭐ " + score;
+  $("check").classList.add("hidden");
+  
+  if(index < missions.length-1){
+    $("next").classList.remove("hidden");
+  } else {
+    $("bar").style.width = "100%";
+    setTimeout(() => { 
+      $("game").classList.add("hidden");
+      $("finish").classList.remove("hidden");
+      $("finalScore").textContent = "Điểm của bé: " + score + " / 50 ⭐";
+      speakText("Bé thật xuất sắc! Bé đã hoàn thành tất cả các thử thách!");
+    }, 1500);
+  }
+}
+
+function restart(){
+  index = 0;
+  score = 0;
+  $("finish").classList.add("hidden");
+  $("game").classList.remove("hidden");
+  render();
+}
+
+$("check").addEventListener("click", check);
+$("next").addEventListener("click", () => {
+  index++;
+  render();
+  speakQuestion();
+});
+
+render();
+</script>
+</body>
+</html>
