@@ -160,15 +160,23 @@ function speakText(rawText) {
   stopAllVoice();
 
   const text = rawText.replace(/[*_#~]/g, '').trim();
-  const url = "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=vi&q=" + encodeURIComponent(text);
-  
-  const audio = new Audio(url);
-  audio.volume = currentVolume;
-  currentAudio = audio;
-  
-  audio.play().catch(err => {
-    // Không làm gì, tránh phát sinh giọng nói thứ 2
-  });
+
+  // Kiểm tra xem trình duyệt có hỗ trợ Web Speech API không
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'vi-VN'; // Giọng tiếng Việt
+    utterance.volume = currentVolume; // Âm lượng từ slider
+    utterance.rate = 0.9; // Tốc độ đọc (0.9 để bé dễ nghe hơn)
+
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+function stopAllVoice() {
+  clearTimeout(hoverTimer);
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel(); // Dừng tất cả giọng nói đang phát
+  }
 }
 
 function handleHoverChoice(choiceText) {
